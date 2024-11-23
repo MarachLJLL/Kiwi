@@ -1,35 +1,63 @@
-import { ProductCollection } from "../Interface/ProductCollection";
+class WalmartSearchPage {
+    constructor(document) {
+        this.document = document;
+    }
 
-class WalmartSearchPage extends ProductCollection {
-    
-    getProductDivs() {
-        return document.querySelectorAll("#\\30 > section > div > div");
+    getProducts() {
+        const productDivs = this.getProductElements();
+        const products = [];
+        productDivs.forEach(div => {
+            try {
+                let productPageLink = this.getCompleteUrl(div);
+                let imageHTMLElement = this.getImageElement(div);
+                let rawImageLink = this.getRawImageLink(div);
+                if (productPageLink && imageHTMLElement && rawImageLink) {
+                    products.push(new Product(productPageLink, imageHTMLElement, rawImageLink));
+                }
+            } catch (error) {
+                console.error('Error processing product:', error);
+            }
+        });
+        return products;
+    }
+
+    getProductElements() {
+        return this.document.querySelectorAll("#\\30 > section > div > div");
     }
 
     getCompleteUrl(div) {
         const anchorElements = div.getElementsByTagName("a");
         if (anchorElements.length <= 0) {
-            return null
+            return null;
         }
-        const anchorElement = div.getElementsByTagName("a")[0];
-        // Ensure the anchor element exists
+        const anchorElement = anchorElements[0];
         if (!anchorElement || !anchorElement.getAttribute("href")) {
             return null;
         }
 
-        // Concatenate the base URL with the href
-        const baseUrl = window.location.origin; // Gets the base URL of the current page
-        const completeUrl = baseUrl + anchorElement.getAttribute("href");
-
-        return completeUrl;
+        const baseUrl = window.location.origin;
+        return baseUrl + anchorElement.getAttribute("href");
     }
 
     getImageElement(div) {
-        return div.querySelectorAll('[id*="productImage"]')[0];
+        // Ensure 'div' is valid and check for image elements
+        if (!div) {
+            console.error('Invalid div passed to getImageElement.');
+            return null;
+        }
+        return div.querySelector('[id*="productImage"]');
     }
 
-    getRawImageLink(img) {
-        const imageElement = getImageElement(div);
-        return imageElement.src
+    getRawImageLink(div) {
+        const imageElement = this.getImageElement(div);
+        if (!imageElement) {
+            console.error('Image element not found in div.');
+            return null;
+        }
+        return imageElement.src;
     }
 }
+
+// Example usage
+let wsp = new WalmartSearchPage(document);
+let products = wsp.getProducts();
