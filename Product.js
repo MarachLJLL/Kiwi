@@ -2,10 +2,10 @@ const apiURL = 'https://quickchart.io/watermark';
 const markedIMG = 'https://static.vecteezy.com/system/resources/thumbnails/017/785/303/small/creative-wrong-icon-3d-render-png.png'
 
 class Product {
-    constructor() {
-        this.div;
-        this.imageHTMLElement;
-        this.rawImageLink;
+    constructor(div, imageHTMLElement, rawImageLink, processedImage) {
+        this.div = div;
+        this.imageHTMLElement = imageHTMLElement;
+        this.rawImageLink = rawImageLink;
         this.processedImage;
     }
 
@@ -35,8 +35,9 @@ class Product {
             if (data instanceof Blob) {
                 const imageUrl = URL.createObjectURL(data);
                 this.processedImage = imageUrl;
+                this.imageHTMLElement.src = this.processedImage
                 } else {
-                console.error('error from API:', data);
+                    console.error('error from API:', data);
                 }
         })
         .catch((error) => {

@@ -78,9 +78,11 @@ let whp = new WalmartHomePage(document);
 let productDivs = whp.getProductElements();
 
 // Debugging output
+/*
 productDivs.forEach(div => {
     console.log("Processing div:", div);
     console.log("Product URL:", whp.getCompleteUrl(div));
     console.log("Image Element:", whp.getImageElement(div));
     console.log("Raw Image Link:", whp.getRawImageLink(div));
 });
+*/
