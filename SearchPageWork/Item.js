@@ -5,7 +5,12 @@ class Item {
         this.rawImageLink;
     }
 
-    
+    isRestricted(ingredients) {
+
+    }
+    processItem() {
+
+    }
 
     processImage() {
         // pseudocode for changingimageHTMLElement.src("new image")
