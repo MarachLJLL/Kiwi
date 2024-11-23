@@ -1,0 +1,19 @@
+body {
+    /* Size of the popup extension  */
+    width: 400px;
+    height: 550px;
+
+    overflow: hidden;
+    box-sizing: border-box;
+
+    /* Style content of the popup */
+    padding: 20px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+button {
+    border-radius: 30px;
+}
