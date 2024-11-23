@@ -5,7 +5,7 @@ class Item {
         this.div;
         this.imageHTMLElement;
         this.rawImageLink;
-        this.processedImage
+        this.processedImage;
     }
 
     
