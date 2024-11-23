@@ -2,25 +2,25 @@ import { getChatCompletion } from './api-call.js'; // Ensure the relative path i
 import readline from 'readline';
 
 /**
- * Prompts the user to input a list of items they cannot consume.
+ * Prompts the user to input any statement or list of items they cannot consume.
  * @returns {Promise<string>} - The raw user input as a single string.
  */
 
-function getUserList() {
+function getUserInput() {
     return new Promise((resolve) => {
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
 
-        rl.question('Enter the list of items you cannot consume separated by commas: ', (answer) => { /**HERE WE HAVE A QUESTION */
+        rl.question('Enter your dietary preference or items you cannot consume: ', (answer) => { /** HERE WE HAVE A QUESTION */
             rl.close();
             const userInput = answer.trim();
             if (userInput.length === 0) {
-                console.log('No items entered. Exiting the program.');
+                console.log('No input provided. Exiting the program.');
                 process.exit(0);
             }
-            console.log('Received list from user:', userInput);
+            console.log('Received user input:', userInput);
             resolve(userInput);
         });
     });
@@ -28,14 +28,16 @@ function getUserList() {
 
 /**
  * Constructs a detailed prompt incorporating the user's input.
- * @param {string} userInput - The raw list of items the user cannot consume.
+ * @param {string} userInput - The raw user input.
  * @returns {string} - The constructed prompt for OpenAI.
  */
 function constructPrompt(userInput) {
-    return `Hello ChatGPT, you are a licensed nutritionist and the best in your field. 
-    You want to ensure that your patients do not consume foods they are allergic to, and you want to help your patients lose weight. 
-    Based on the following list of items the user cannot consume, identify each item and return a comprehensive 
-    list of additional foods to avoid in the following format:
+    return `Hello ChatGPT,
+
+You are a licensed nutritionist and the best in your field. Your goal is to help individuals maintain a healthy diet by identifying foods they should avoid based on their dietary preferences, restrictions, or health goals.
+
+Based on the following user input, identify all relevant foods or ingredients that should be avoided to achieve the user's dietary goal. Provide the list in the following format:
+
 Foods_to_avoid = [
     "Item1",
     "Item2",
@@ -43,18 +45,15 @@ Foods_to_avoid = [
     ...
 ]
 
-Ensure that each item you give is an item that can be found when analyzing the ingredients tag of an item in the grocery store, for example
-In the case of Lays Chips we have: Specially Selected Potatoes, Vegetable Oil, Salt
-For chips ahoy: Wheat flour, Semi-sweet chocolate chips (sugar, unsweetened chocolate, cocoa butter, dextrose, milk ingredients, soy lecithin), Sugars (sugar and/or golden sugar, glucose-fructose), Shortening (vegetable oil, modified palm oil), Salt, Baking soda, Ammonium phosphate, Ammonium bicarbonate, Artificial flavour, Caramel colour. Contains: Wheat, Milk, Soy.
+**Instructions:**
+- Ensure the list is exhaustive, accurate, and considers variations or similar names (e.g., kiwi and Chinese gooseberry).
+- Avoid general or vague answers. Each item should be specific and actionable.
+- Prioritize safety and thoroughness, as this is crucial for the user's health.
 
-Ensure the list is exhaustive, accurate, redundant, and consistent, prioritizing safety and thoroughness. 
-Avoid general answers like Certain Snack Foods (e.g.nut-based snacks or those with nut flavorings) or Certain Candies (e.g.those with nuts or nut flavors)
-Account for any items with similar names such as kiwi and Chinese gooseberry. 
-This is a matter of life and death!
-
-User input:
+**User Input:**
 ${userInput}
-`;
+
+Please provide only the list in the specified format without additional explanations.`;
 }
 
 /**
@@ -64,7 +63,7 @@ ${userInput}
  */
 function parseAIResponse(text) {
     // Use a regular expression to extract the list within the square brackets
-    const regex = /Foods_to_avoid\s*=\s*\[(.*?)\]/s;
+    const regex = /Foods_to_avoid\s*=\s*\[\s*([\s\S]*?)\s*\]/;
     const match = text.match(regex);
     if (match && match[1]) {
         // Split the items by comma and remove any surrounding quotes and whitespace
@@ -81,16 +80,13 @@ function parseAIResponse(text) {
 // Main asynchronous function to orchestrate the steps
 (async () => {
     try {
-        // Step 1: Prompt the user to enter their list
-        const userInput = await getUserList();
+       //Prompt user for input 
+        const userInput = await getUserInput();
 
-        // Step 2: Construct the prompt incorporating the user's input
+        //make prompt using user input
         const prompt = constructPrompt(userInput);
 
-        
-        // console.log('\nConstructed Prompt:\n', prompt);
-
-        
+        //here we send the prompt to openAI
         console.log("Sending prompt to OpenAI...");
         const openAIResponse = await getChatCompletion(prompt);
 
@@ -100,9 +96,8 @@ function parseAIResponse(text) {
         }
 
         console.log('Received response from OpenAI.');
-        // console.log('Raw AI Response:', openAIResponse);
 
-        // Step 4: Parse the AI's response to extract the list of foods to avoid
+        // parse el api response
         const foodsToAvoid = parseAIResponse(openAIResponse);
 
         if (foodsToAvoid.length === 0) {
@@ -110,10 +105,8 @@ function parseAIResponse(text) {
             process.exit(1);
         }
 
-        //AI RESPOINSE STORED IN foodsToAvoid
-
-        // Step 6: Output the results
-        console.log('\nYour Dietary Recommendations:');
+        // Step 5: Output the results
+        console.log('\nTo reach your goal, here are some foods you should avoid');
         console.log('----------------------------------');
 
         console.log('\nYou cannot eat:');
