@@ -1,15 +1,15 @@
 const apiURL = 'https://quickchart.io/watermark';
 const markedIMG = 'https://i.postimg.cc/4NHhhwkJ/XKiwi.png'
 
-class Product {
-    constructor(div, productPageLink, imageHTMLElement, rawImageLink) {
+export class Product {
+    constructor(div, productPageLink, imageHTMLElement, rawImageLink, ingredients) {
         this.div = div;
         this.productPageLink = productPageLink;
         this.imageHTMLElement = imageHTMLElement;
         this.rawImageLink = rawImageLink;
+        this.ingredients = ingredients;
         this.processedImage;
         this.isProcessed = false;
-        
     }
 
     async processProduct(){
@@ -34,7 +34,7 @@ class Product {
         const originalBrand = targetSpan.textContent;
         // Add event listeners for hover (mouseenter and mouseleave)
         this.div.addEventListener('mouseenter', () => {
-            targetSpan.textContent = 'Contains: '; // Change the text
+            targetSpan.textContent = 'Contains: ' + this.ingredients; // Change the text
             targetSpan.style.color = 'red'; // Change the text color
         });
 

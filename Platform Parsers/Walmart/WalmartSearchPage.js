@@ -1,4 +1,5 @@
 import { Product } from "../../Product";
+import { walmartExtractIngredients } from "./ExtractWalmartIngredients";
 
 class WalmartSearchPage {
     constructor(document) {
@@ -17,13 +18,14 @@ class WalmartSearchPage {
         return products;
     }
 
-    divToProduct(div) {
+    async divToProduct(div) {
         try {
             let productPageLink = this.getCompleteUrl(div);
+            let ingredients = await walmartExtractIngredients(productPageLink);
             let imageHTMLElement = this.getImageElement(div);
             let rawImageLink = this.getRawImageLink(div);
             if (productPageLink && imageHTMLElement && rawImageLink) {
-                return new Product(div, productPageLink, imageHTMLElement, rawImageLink);
+                return new Product(div, productPageLink, imageHTMLElement, rawImageLink, ingredients);
             }
         } catch (error) {
             console.error('Error processing product:', error);
