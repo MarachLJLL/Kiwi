@@ -12,7 +12,7 @@ class WalmartSearchPage {
                 let imageHTMLElement = this.getImageElement(div);
                 let rawImageLink = this.getRawImageLink(div);
                 if (productPageLink && imageHTMLElement && rawImageLink) {
-                    products.push(new Product(productPageLink, imageHTMLElement, rawImageLink));
+                    products.push(new Product(div, productPageLink, imageHTMLElement, rawImageLink));
                 }
             } catch (error) {
                 console.error('Error processing product:', error);

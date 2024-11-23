@@ -1,12 +1,43 @@
 const apiURL = 'https://quickchart.io/watermark';
-const markedIMG = 'https://static.vecteezy.com/system/resources/thumbnails/017/785/303/small/creative-wrong-icon-3d-render-png.png'
+const markedIMG = 'https://i.postimg.cc/4NHhhwkJ/XKiwi.png'
 
 class Product {
-    constructor(div, imageHTMLElement, rawImageLink, processedImage) {
+    constructor(div, productPageLink, imageHTMLElement, rawImageLink) {
         this.div = div;
+        this.productPageLink = productPageLink;
         this.imageHTMLElement = imageHTMLElement;
         this.rawImageLink = rawImageLink;
         this.processedImage;
+        this.isProcessed = false;
+        
+    }
+
+    async processProduct(){
+        if (this.isDangerous) {
+            this.processImage;
+            this.addWarningHover;
+        }
+        this.isProcessed =  true;
+    }
+
+    async isDangerous() {
+        return true;
+    }
+
+    addWarningHover() {
+        // Select the outer span (w_vi_D)
+        const targetSpan = this.div.querySelector('.mb1.mt2.b.f6.black.mr1.lh-copy');
+        const originalBrand = targetSpan.textContent;
+        // Add event listeners for hover (mouseenter and mouseleave)
+        this.div.addEventListener('mouseenter', () => {
+            targetSpan.textContent = 'Contains: '; // Change the text
+            targetSpan.style.color = 'red'; // Change the text color
+        });
+
+        this.div.addEventListener('mouseleave', () => {
+            targetSpan.textContent = originalBrand; // Restore the original text
+            targetSpan.style.color = ''; // Reset to default color
+        });
     }
 
     async processImage() {
@@ -14,7 +45,7 @@ class Product {
             mainImageUrl: this.rawImageLink,
             markImageUrl: markedIMG, 
             position: 'center', 
-            opacity: 0.8, 
+            opacity: 1.0, 
             markRatio: 1.0,
         };
 
