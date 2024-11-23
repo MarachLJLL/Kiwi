@@ -1,3 +1,5 @@
+import { Product } from "../../Product";
+
 class WalmartSearchPage {
     constructor(document) {
         this.document = document;
@@ -7,18 +9,25 @@ class WalmartSearchPage {
         const productDivs = this.getProductElements();
         const products = [];
         productDivs.forEach(div => {
-            try {
-                let productPageLink = this.getCompleteUrl(div);
-                let imageHTMLElement = this.getImageElement(div);
-                let rawImageLink = this.getRawImageLink(div);
-                if (productPageLink && imageHTMLElement && rawImageLink) {
-                    products.push(new Product(div, productPageLink, imageHTMLElement, rawImageLink));
-                }
-            } catch (error) {
-                console.error('Error processing product:', error);
+            let p = this.divToProduct(div);
+            if (p) {
+                products.push(p);
             }
         });
         return products;
+    }
+
+    divToProduct(div) {
+        try {
+            let productPageLink = this.getCompleteUrl(div);
+            let imageHTMLElement = this.getImageElement(div);
+            let rawImageLink = this.getRawImageLink(div);
+            if (productPageLink && imageHTMLElement && rawImageLink) {
+                return new Product(div, productPageLink, imageHTMLElement, rawImageLink);
+            }
+        } catch (error) {
+            console.error('Error processing product:', error);
+        }
     }
 
     getProductElements() {
@@ -56,12 +65,36 @@ class WalmartSearchPage {
         }
         return imageElement.src;
     }
+
+    addRefresh() {
+        const targetElement = document.querySelector("#\\30  > section > div");
+        if (targetElement) {
+            // Create a MutationObserver
+            const observer = new MutationObserver((mutationsList) => {
+                for (let mutation of mutationsList) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(div => {
+                            this.divToProduct(div).processProduct();
+                        });
+                    }
+                }
+            });
+        
+            // Start observing the target element
+            observer.observe(targetElement, { childList: true });
+        
+            console.log('MutationObserver is now monitoring changes to child elements.');
+        } else {
+            console.error('Target element not found.');
+        }        
+    }
 }
+
 
 // Example usage
 let wsp = new WalmartSearchPage(document);
-let productDivs = wsp.getProductElements();
 let ps = wsp.getProducts();
-let p0 = ps[0];
-p0.processImage();
+ps.forEach(p => {
+    p.processProduct()
+})
 // Debugging output

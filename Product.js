@@ -13,11 +13,15 @@ class Product {
     }
 
     async processProduct(){
-        if (this.isDangerous) {
-            this.processImage;
-            this.addWarningHover;
+        try {
+            if (this.isDangerous()) {
+                this.processImage();
+                this.addWarningHover();
+            }
+            this.isProcessed =  true;
+        } catch (error) {
+            
         }
-        this.isProcessed =  true;
     }
 
     async isDangerous() {
