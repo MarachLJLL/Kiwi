@@ -7,16 +7,16 @@ import path from 'path';
 // Define the path to your API key file
 const apiKeyPath = '/Users/majdkhalife/Desktop/Hackathon/Kiwi/api.txt';
 
-//check to make sure API was loaded succesfully 
+// Check to make sure API was loaded successfully
 let apiKey;
 try {
     apiKey = fs.readFileSync(apiKeyPath, 'utf8').trim();
     if (!apiKey) {
         throw new Error("API key is empty");
     }
-    console.log("🔑 API Key loaded successfully.");
+    console.log("API Key loaded successfully.");
 } catch (err) {
-    console.error(`❌ Failed to read API key from ${apiKeyPath}:`, err.message);
+    console.error(`Failed to read API key from ${apiKeyPath}:`, err.message);
     process.exit(1); 
 }
 
@@ -25,16 +25,21 @@ const openai = new OpenAI({
     apiKey: apiKey,
 });
 
-//getChatCompletion
-async function getChatCompletion(prompt, model = "gpt-3.5-turbo") {
+/**
+ * Fetches a chat completion from OpenAI based on the provided prompt.
+ * @param {string} prompt - The input prompt for the AI.
+ * @param {string} model - The OpenAI model to use (default: "gpt-3.5-turbo").
+ * @returns {Promise<string|null>} - The AI's response or null if unexpected format.
+ */
+export async function getChatCompletion(prompt, model = "gpt-4o") {
     try {
         const response = await openai.chat.completions.create({
             model: model,
             messages: [{ role: "user", content: prompt }],
-            temperature: 0, //adjust creativity of response
+            temperature: 0, // Adjust creativity of response
         });
 
-        //check if the response contains choices
+        // Check if the response contains choices
         if (
             response &&
             response.choices &&
@@ -54,23 +59,7 @@ async function getChatCompletion(prompt, model = "gpt-3.5-turbo") {
         } else {
             console.error("Error fetching chat completion:", error.message);
         }
-        throw error; //throw error after logging
+        throw error; // Throw error after logging
     }
 }
 
-// Example usage
-(async () => {
-    const prompt = "Hello, how are you?"; //ENTER PROMPT HERE!!!!!!!!!!!!!!!!!
-
-    try {
-        console.log("Sending prompt to OpenAI...");
-        const response = await getChatCompletion(prompt);
-        if (response) {
-            console.log("Response from OpenAI:", response);
-        } else {
-            console.log("No response received from OpenAI.");
-        }
-    } catch (error) {
-        console.error("Failed to get chat completion.");
-    }
-})();
