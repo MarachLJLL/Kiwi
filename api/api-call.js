@@ -1,13 +1,11 @@
-// api-call.js
-
 import OpenAI from 'openai';
 import fs from 'fs';
-import path from 'path';
 
-// Define the path to your API key file
+
+//define path to API file key
 const apiKeyPath = '/Users/majdkhalife/Desktop/Hackathon/Kiwi/api.txt';
 
-// Check to make sure API was loaded successfully
+//make sure key loaded - no errors
 let apiKey;
 try {
     apiKey = fs.readFileSync(apiKeyPath, 'utf8').trim();
@@ -36,10 +34,10 @@ export async function getChatCompletion(prompt, model = "gpt-4o") {
         const response = await openai.chat.completions.create({
             model: model,
             messages: [{ role: "user", content: prompt }],
-            temperature: 0, // Adjust creativity of response
+            temperature: 0.4, //lower-> more deterministic reponses, could experiment with it highkey
         });
 
-        // Check if the response contains choices
+        //make sure response hs chocies
         if (
             response &&
             response.choices &&
