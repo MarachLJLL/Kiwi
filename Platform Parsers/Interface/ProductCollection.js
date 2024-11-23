@@ -1,3 +1,5 @@
+import { Product } from "../../Product";
+
 export class ProductCollection {
     getProducts() {
         const productDivs = this.getProductElements();

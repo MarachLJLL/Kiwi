@@ -60,4 +60,12 @@ class WalmartSearchPage {
 
 // Example usage
 let wsp = new WalmartSearchPage(document);
-let products = wsp.getProducts();
+let productDivs = wsp.getProductElements();
+
+// Debugging output
+productDivs.forEach(div => {
+    console.log('Processing div:', div);
+    console.log('Product URL:', wsp.getCompleteUrl(div));
+    console.log('Image Element:', wsp.getImageElement(div));
+    console.log('Raw Image Link:', wsp.getRawImageLink(div));
+});
