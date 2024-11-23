@@ -16,11 +16,11 @@
     "content_scripts": [
         {
           "matches": ["https://www.walmart.ca/en/search?*"],
-          "js": ["SearchPageWork/SearchPage.js"]
+          "js": ["Platform Parsers/Walmart/WalmartSearchPage.js"]
         },
         {
-          "matches": ["https://www.walmart.ca/en/checkout?*"],
-          "js": ["checkout_page.js"]
+          "matches": ["https://www.walmart.ca/en"],
+          "js": ["Platform Parsers/Walmart/WalmartHomePage.js"]
         }
     ]
 }
