@@ -19,11 +19,11 @@ class Product {
         };
 
         fetch(apiURL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params),
         })
 
         .then((response) => {
@@ -35,9 +35,9 @@ class Product {
             if (data instanceof Blob) {
                 const imageUrl = URL.createObjectURL(data);
                 this.processedImage = imageUrl;
-                } else {
-                console.error('error from API:', data);
-                }
+            } else {
+            console.error('error from API:', data);
+            }
         })
         .catch((error) => {
             console.error('error creating overlay:', error);
