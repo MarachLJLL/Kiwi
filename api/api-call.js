@@ -3,7 +3,7 @@ import fs from 'fs';
 
 
 //define path to API file key
-const apiKeyPath = '/Users/majdkhalife/Desktop/Hackathon/Kiwi/api.txt';
+const apiKeyPath = 'api.txt';
 
 //make sure key loaded - no errors
 let apiKey;
