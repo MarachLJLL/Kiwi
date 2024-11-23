@@ -7,7 +7,7 @@ import path from 'path';
 // Define the path to your API key file
 const apiKeyPath = '/Users/majdkhalife/Desktop/Hackathon/Kiwi/api.txt';
 
-// Read the API key from the file
+//check to make sure API was loaded succesfully 
 let apiKey;
 try {
     apiKey = fs.readFileSync(apiKeyPath, 'utf8').trim();
@@ -17,7 +17,7 @@ try {
     console.log("🔑 API Key loaded successfully.");
 } catch (err) {
     console.error(`❌ Failed to read API key from ${apiKeyPath}:`, err.message);
-    process.exit(1); // Exit the process with an error code
+    process.exit(1); 
 }
 
 // Initialize the OpenAI client
@@ -25,16 +25,16 @@ const openai = new OpenAI({
     apiKey: apiKey,
 });
 
-// Function to get chat completion
+//getChatCompletion
 async function getChatCompletion(prompt, model = "gpt-3.5-turbo") {
     try {
         const response = await openai.chat.completions.create({
             model: model,
             messages: [{ role: "user", content: prompt }],
-            temperature: 0, // Adjust the creativity of the response
+            temperature: 0, //adjust creativity of response
         });
 
-        // Check if the response contains choices
+        //check if the response contains choices
         if (
             response &&
             response.choices &&
@@ -44,33 +44,33 @@ async function getChatCompletion(prompt, model = "gpt-3.5-turbo") {
         ) {
             return response.choices[0].message.content;
         } else {
-            console.error("❌ Unexpected response format:", response);
+            console.error("Unexpected response format:", response);
             return null;
         }
     } catch (error) {
         // Enhanced error handling
         if (error.response) {
-            console.error("❌ OpenAI API Error:", error.response.status, error.response.data);
+            console.error("OpenAI API Error:", error.response.status, error.response.data);
         } else {
-            console.error("❌ Error fetching chat completion:", error.message);
+            console.error("Error fetching chat completion:", error.message);
         }
-        throw error; // Re-throw the error after logging
+        throw error; //throw error after logging
     }
 }
 
 // Example usage
 (async () => {
-    const prompt = "Hello, how are you?"; // Provide a valid prompt here
+    const prompt = "Hello, how are you?"; //ENTER PROMPT HERE!!!!!!!!!!!!!!!!!
 
     try {
-        console.log("🔄 Sending prompt to OpenAI...");
+        console.log("Sending prompt to OpenAI...");
         const response = await getChatCompletion(prompt);
         if (response) {
-            console.log("💬 Response from OpenAI:", response);
+            console.log("Response from OpenAI:", response);
         } else {
-            console.log("❌ No response received from OpenAI.");
+            console.log("No response received from OpenAI.");
         }
     } catch (error) {
-        console.error("❌ Failed to get chat completion.");
+        console.error("Failed to get chat completion.");
     }
 })();
