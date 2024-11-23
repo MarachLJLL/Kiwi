@@ -44,39 +44,58 @@ class Product {
         });
     }
 
-    async processImage() {
+    async processImage(retries = 3) {
         const params = {
             mainImageUrl: this.rawImageLink,
-            markImageUrl: markedIMG, 
-            position: 'center', 
-            opacity: 1.0, 
+            markImageUrl: markedIMG,
+            position: 'center',
+            opacity: 1.0,
             markRatio: 1.0,
         };
-
-        fetch(apiURL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
-        })
-
-        .then((response) => {
-            const contentType = response.headers.get('Content-Type');
-            return response.blob();
-        })
-        
-        .then((data) => {
-            if (data instanceof Blob) {
-                const imageUrl = URL.createObjectURL(data);
-                this.processedImage = imageUrl;
-                this.imageHTMLElement.src = this.processedImage
-                } else {
-                    console.error('error from API:', data);
+    
+        const makeRequest = async (attempt) => {
+            try {
+                const response = await fetch(apiURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params),
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-        })
-        .catch((error) => {
-            console.error('error creating overlay:', error);
-        });
+    
+                const data = await response.blob();
+    
+                if (data instanceof Blob) {
+                    const imageUrl = URL.createObjectURL(data);
+                    this.processedImage = imageUrl;
+    
+                    // Remove srcset and update src
+                    if (this.imageHTMLElement.hasAttribute('srcset')) {
+                        this.imageHTMLElement.removeAttribute('srcset');
+                    }
+                    if (this.imageHTMLElement.hasAttribute('src')) {
+                        this.imageHTMLElement.src = this.processedImage;
+                    }
+                } else {
+                    console.error("Invalid response data:", data);
+                }
+            } catch (error) {
+                console.error(`Error on attempt ${attempt}:`, error);
+    
+                if (attempt < retries) {
+                    console.log(`Retrying... (${attempt + 1}/${retries})`);
+                    await makeRequest(attempt + 1);
+                } else {
+                    console.error("Max retries reached. Failed to process image.");
+                }
+            }
+        };
+    
+        await makeRequest(1);
     }
+    
 }

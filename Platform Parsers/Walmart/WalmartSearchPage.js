@@ -66,28 +66,6 @@ class WalmartSearchPage {
         return imageElement.src;
     }
 
-    addRefresh() {
-        const targetElement = document.querySelector("#\\30  > section > div");
-        if (targetElement) {
-            // Create a MutationObserver
-            const observer = new MutationObserver((mutationsList) => {
-                for (let mutation of mutationsList) {
-                    if (mutation.type === 'childList') {
-                        mutation.addedNodes.forEach(div => {
-                            this.divToProduct(div).processProduct();
-                        });
-                    }
-                }
-            });
-        
-            // Start observing the target element
-            observer.observe(targetElement, { childList: true });
-        
-            console.log('MutationObserver is now monitoring changes to child elements.');
-        } else {
-            console.error('Target element not found.');
-        }        
-    }
 }
 
 
