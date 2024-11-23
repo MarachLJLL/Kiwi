@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "Change Background Color",
+    "version": "1.0",
+    "description": "A simple Chrome extension to change the background color of a webpage.",
+    "permissions": ["scripting", "activeTab"],
+    "host_permissions": ["<all_urls>"],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+      }
+    },
+    "content_scripts": [
+        {
+          "matches": ["https://www.walmart.ca/en/search?*"],
+          "js": ["SearchPage.js"]
+        },
+        {
+          "matches": ["https://www.walmart.ca/en/checkout?*"],
+          "js": ["checkout_page.js"]
+        }
+    ]
+}
