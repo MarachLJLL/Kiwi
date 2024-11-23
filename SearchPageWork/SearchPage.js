@@ -1,3 +1,19 @@
+import { Product } from "./Product";
+
+function getProducts() {
+    const productDivs = document.querySelectorAll("#\\30 > section > div > div");
+    productDivs.forEach(div => {
+        try {
+            let link = getCompleteUrl(div.getElementsByTagName("a")[0]);
+            let imageHTMLElement = "";
+        } catch (error) {
+            
+        }
+        
+    });
+    return productDivs;
+}
+
 function getCompleteUrl(anchorElement) {
     // Ensure the anchor element exists
     if (!anchorElement || !anchorElement.getAttribute("href")) {
@@ -12,12 +28,15 @@ function getCompleteUrl(anchorElement) {
     return completeUrl;
 }
 
-function getHyperLinks() {
+function getProductLinks() {
     let productLinks = []
-    const children = document.querySelectorAll("#\\30 > section > div > div");
+    const children = getProductDivs();
 
     // Iterate through the NodeList to perform actions on each child
-    children.forEach(child => {
-        console.log(getCompleteUrl(child.getElementsByTagName("a")[0])); // Logs each child element
-    });
+    try {
+        productLinks.push(getCompleteUrl(child.getElementsByTagName("a")[0])); // Logs each child element
+    } catch (error) {
+        
+    }    
+    return productLinks    
 }

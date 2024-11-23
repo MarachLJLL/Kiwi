@@ -1,6 +1,6 @@
 const watermarkURL = 'https://quickchart.io/watermark'
 
-class Item {
+export class Product {
     constructor() {
         this.div;
         this.imageHTMLElement;
