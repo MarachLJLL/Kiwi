@@ -5,7 +5,7 @@
     "description": "KIWI - Allergy Filter",
     "manifest_version": 3,
     "permissions": ["storage", "scripting", "activeTab"],
-    "host_permissions": ["<all_urls>"],
+    "host_permissions": ["<all_urls>", "https://api.openai.com/*", "https://www.walmart.ca/*"],
     "action": {
         "default_popup": "index.html",
         "default_title": "Kiwi"
@@ -20,5 +20,10 @@
             "js": ["Walmart/WalmartSearchPage.js"]
           }
         
-    ]
+    ],
+    "icons":{
+        "16": "https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936",
+        "48": "https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936",
+        "128": "https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936"
+    }
 }
