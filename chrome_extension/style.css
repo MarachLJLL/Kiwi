@@ -1,134 +1,144 @@
 body {
-    /* Size of the popup extension  */
-    width: 400px;
-    height: 550px;
+  /* Size of the popup extension  */
+  width: 400px;
+  height: 350px;
 
-    /* Style content of the popup */
-    padding: 20px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; 
-   
-    font-family: "Outfit", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 500;
-    font-style: normal;
-    color: #36440f;
-  /*  margin: 0; */
-   /* padding: 0;*/
-    display: flex;
-  /*  flex-direction: column; */
-    align-items: center;
-    background-color: #a3e1b7;
+  /* Style content of the popup */
+  padding: 20px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  border-radius: 1;
+ 
+  font-family: "Outfit", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  color: #36440f;
+/*  margin: 0; */
+ /* padding: 0;*/
+  display: flex;
+/*  flex-direction: column; */
+  align-items: center;
+  background-color: #a3e1b7;
+
+  
+  background-image: url('https://media.discordapp.net/attachments/1302360576281808900/1310007587969695744/incompatibleBG.png?ex=6743a723&is=674255a3&hm=1058b4c8f1f0b1a21a355dc81de61b326b3699170ae18ef56f663e0f1b622196&=&format=webp&quality=lossless&width=322&height=570'); /* Replace 'background.jpg' with your actual image path */
+  background-size: cover; /* Make the image cover the entire body */
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 8px;
 }
 
 header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding: 10px;
-  }
-  
-  .logo {
-    height: 40px;
-    margin-right: 10px;
-    margin-left: 10px;
-  }
-  
-  .title {
-    font-size: 24px;
-    font-weight: 600;
-  }
-  
-  main {
-    width: 90%;
-    max-width: 400px;
-    margin-top: 20px;
-  }
-  
-  .input-container {
-    margin-bottom: 20px;
-  }
-  
-  .input-container label {
-    display: block;
-    margin-bottom: 8px;
-  }
-  
-  #dietary-restrictions {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-  
-  #save-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  
-  #save-button.saved {
-    background-color: pink;
-  }
-  
-  .toggle-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-  
-  .toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
-  }
-  
-  .toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    border-radius: 20px;
-    transition: 0.4s;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.4s;
-  }
-  
-  input:checked + .slider {
-    background-color: #28a745;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(14px);
-  }
-  
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.logo {
+  height: 40px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 600;
+}
+
+main {
+  width: 90%;
+  max-width: 400px;
+  margin-top: 20px;
+}
+
+.input-container {
+  margin-bottom: 20px;
+}
+
+.input-container label {
+  font-size: 18px;
+  font-weight:600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+#dietary-restrictions {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#save-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#save-button.saved {
+  background-color: pink;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #28a745;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}

@@ -1,5 +1,5 @@
 const inputBox = document.getElementById('dietary-restrictions');
-const saveButton = document.getElementById('save-button');
+// const saveButton = document.getElementById('save-button');
 const toggleSwitch = document.getElementById('toggle-switch');
 const toggleLabels = document.querySelectorAll('.toggle-container .toggle-label');
 

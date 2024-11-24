@@ -1,4 +1,3 @@
-let userInput;
 let ingredientsToAvoid;
 let compatibleWebsite;
 
@@ -20,8 +19,8 @@ fetch('api.txt')
     console.error('Error:', error);
   });
 
-/*
-// checking if the user is on walmart
+
+
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const walmartRegex = /^https?:\/\/(www\.)?walmart\.(com|ca)(\/.*)?$/;
 
@@ -29,7 +28,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const currentURL = currentTab.url;
 
     console.log('Current Tab URL:', currentURL); 
-    resultElement.textContent = `URL: ${currentURL}`;
 
     if (walmartRegex.test(currentURL)) {
         compatibleWebsite = true;
@@ -37,7 +35,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         compatibleWebsite = false;
     }
 });
-*/
+
 
 function constructPrompt(userInput) {
     return `Hello ChatGPT,
@@ -218,7 +216,7 @@ document.getElementById('save-button').addEventListener('click', async () => {
     userInput = document.getElementById('input-box').value.trim();
     ingredientsToAvoid = await handleSaveButtonClick(userInput);
 
-    if (ingredientsToAvoid) {
+    if (ingredientsToAvoid && compatibleWebsite) {
         console.log('🔄 Ingredients to Avoid:', ingredientsToAvoid);
 
         // call checkGrocery after the first prompt's result is ready
