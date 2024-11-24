@@ -1,4 +1,5 @@
-export async function walmartExtractIngredients(url) {
+// this works
+async function walmartExtractIngredients(url) {
     try {
       // Fetch the HTML content of the page
       const response = await fetchHtml(url);
@@ -47,9 +48,10 @@ export async function walmartExtractIngredients(url) {
   // Utility function to fetch HTML using XMLHttpRequest
 function fetchHtml(url) {
     return new Promise((resolve, reject) => {
+      console.log('1');
       const xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
-  
+      console.log('2');
       // Removed the User-Agent header setting
       xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {
@@ -58,12 +60,16 @@ function fetchHtml(url) {
           reject(new Error(`Failed to fetch: ${xhr.status} ${xhr.statusText}`));
         }
       };
-  
+      console.log('3');
       xhr.onerror = function () {
         reject(new Error("Network error occurred while fetching the HTML."));
       };
-  
+      console.log('4');
       xhr.send();
+      console.log('5');
     });
 }
+let url = "https://www.walmart.ca/en/ip/Que-Pasa-Organic-Salted-Tortilla-Chips/6000196741845?selectedSellerId=0&from=/search";
+console.log(fetchHtml(url));
+console.log(walmartExtractIngredients(url));
   
