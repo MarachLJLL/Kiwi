@@ -2,8 +2,8 @@
 
 console.log("WalmartSearchPage.js is running");
 
-// Load the API key
-let apiKey; // Declare apiKey at the top so it's accessible in all functions
+// load
+let apiKey; 
 async function loadApiKey() {
     try {
         const response = await fetch(chrome.runtime.getURL('api.txt'));
@@ -15,10 +15,9 @@ async function loadApiKey() {
     }
 }
 
-// Initialize by loading the API key
 loadApiKey();
 
-// Function to check if the extension is toggled on
+// if extension is toggled on, then...
 function isExtensionToggledOn() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(['toggleState'], function (result) {
@@ -31,16 +30,16 @@ function isExtensionToggledOn() {
     });
 }
 
-// Listen for storage changes to toggleState
+// if something has been stored
 chrome.storage.onChanged.addListener(async function (changes, areaName) {
     if (areaName === 'local' && changes.toggleState) {
         const toggleState = changes.toggleState.newValue;
         console.log('Toggle state changed:', toggleState);
         if (toggleState) {
-            // If toggled on, start processing products
+            // if toggled on, start processing products
             initializeProductProcessing();
         } else {
-            // If toggled off, remove any modifications
+            // if toggled off remove x
             removeAllModifications();
         }
     }
@@ -180,7 +179,6 @@ class Product {
     }
 }
 
-// Function to check if the required data is available
 function checkDataAvailability(callback, groceryIngredients) {
     return new Promise((resolve) => {
         chrome.storage.local.get(['dietaryRestrictions', 'ingredientsToAvoid', 'toggleState'], function (result) {
@@ -209,7 +207,6 @@ function checkDataAvailability(callback, groceryIngredients) {
     });
 }
 
-// Main functionality that requires the data
 async function mainFunction(result, groceryIngredients) {
     const isToggledOn = await isExtensionToggledOn();
     if (!isToggledOn) {
@@ -236,7 +233,6 @@ async function mainFunction(result, groceryIngredients) {
     return returnJson2;
 }
 
-// Function to call OpenAI API
 async function getChatCompletion(prompt) {
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -246,7 +242,7 @@ async function getChatCompletion(prompt) {
                 'Authorization': `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: 'gpt-4',
+                model: 'gpt-4o',
                 messages: [{ role: 'user', content: prompt }],
             }),
         });
@@ -263,7 +259,6 @@ async function getChatCompletion(prompt) {
     }
 }
 
-// Function to construct the verification prompt
 function constructVerificationPrompt(userInput, ingredientsToAvoid, groceryIngredients) {
     return `Hello ChatGPT,
 
@@ -302,11 +297,9 @@ Specificity: Mention exact ingredients causing the issue.
 Safety and Thoroughness: Prioritize the user's health by being meticulous.`;
 }
 
-// Check if a grocery item is fit
 async function checkGroceryOk(userInput, ingredientsToAvoid, groceryIngredients) {
     const verificationPrompt = constructVerificationPrompt(userInput, ingredientsToAvoid, groceryIngredients);
 
-    // Await the API call
     const returnedText = await getChatCompletion(verificationPrompt);
 
     if (!returnedText) {
@@ -314,14 +307,11 @@ async function checkGroceryOk(userInput, ingredientsToAvoid, groceryIngredients)
         return null;
     }
 
-    // Parse the string into an object
     return parseReturnJSON(returnedText);
 }
 
-// Function to parse the returned text into JSON
 function parseReturnJSON(returnedText) {
     try {
-        // Use regex to extract JSON from the response
         const jsonMatch = returnedText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
             const jsonString = jsonMatch[0];
@@ -337,7 +327,6 @@ function parseReturnJSON(returnedText) {
     }
 }
 
-// Class for handling the Walmart Search Page
 class WalmartSearchPage {
     constructor(document) {
         this.document = document;
@@ -411,23 +400,21 @@ class WalmartSearchPage {
     }
 }
 
-// Fetch HTML content with rate-limiting and error handling
 async function fetchHtmlWithRateLimit(url, delayMs = 1000, retries = 3) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            await delay(delayMs); // Delay before making the request
-            return await fetchHtml(url); // Fetch the HTML
+            await delay(delayMs); 
+            return await fetchHtml(url); 
         } catch (error) {
             console.error(`Attempt ${attempt} failed:`, error);
             if (attempt === retries) {
                 throw new Error(`Failed to fetch after ${retries} attempts`);
             }
-            delayMs *= 2; // Exponential backoff
+            delayMs *= 2;
         }
     }
 }
 
-// Delay function implementation
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

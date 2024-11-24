@@ -1,32 +1,38 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Extension</title>
-<link rel="stylesheet" href="style.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiwi Extension</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="toggle-container">
         <span class="toggle-label">Off</span>
         <label class="toggle-switch">
-        <input type="checkbox" id="toggle-switch">
-        <span class="slider"></span>
+            <input type="checkbox" id="toggle-switch">
+            <span class="slider"></span>
         </label>
         <span class="toggle-label">On</span>
     </div>
+
+
     <header>
         <img src="https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936" alt="Kiwi Logo" class="logo">
         <span class="title">Kiwi</span>
-        </header>
-    
+    </header>
+
     <main>
         <div class="input-container">
-            <label for="dietary-restrictions">Tell Kiwi whats iffy! <br> Any no-go ingredients or diets?</label>
-            <input type="text" id="dietary-restrictions" placeholder="eg: I have a peanut allergy, and I'm on a keto diet...">
+            <label for="dietary-restrictions">Tell Kiwi what's iffy! <br> Any no-go ingredients or diets?</label>
+            <input type="text" id="dietary-restrictions" placeholder="e.g., I have a peanut allergy, and I'm on a keto diet...">
             <button id="save-button">Save</button>
         </div>
     </main>
+
     <script src="script.js"></script>
-    <!-- <script src="luis.js"></script> -->
 </body>
 </html>

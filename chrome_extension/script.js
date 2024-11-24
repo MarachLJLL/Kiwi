@@ -9,28 +9,30 @@ const logoImages = document.querySelectorAll('.logo');
 const staticLogo = 'https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936';
 const gifLogo = 'https://media.discordapp.net/attachments/1302360576281808900/1309987897520291932/Loading.gif?ex=674394cd&is=6742434d&hm=4aa860d3451f308611e75aaf7ad026cc34afa6b163006796b8e81b58f0511d5c&=&width=1248&height=936'; // Replace with the actual GIF URL
 
-// Load saved data on DOMContentLoaded
+// will save the saved data while DOM is loading
 document.addEventListener('DOMContentLoaded', function () {
     chrome.storage.local.get(['dietaryRestrictions', 'toggleState', 'ingredientsToAvoid'], function (result) {
         if (result.dietaryRestrictions) {
-            inputBox.value = result.dietaryRestrictions; // Set input box value
+            inputBox.value = result.dietaryRestrictions; 
         }
+
+        // if the toggle is on or off
         if (typeof result.toggleState === 'boolean') {
-            toggleSwitch.checked = result.toggleState; // Set toggle state
+            toggleSwitch.checked = result.toggleState; 
             updateToggleLabelColors(result.toggleState);
 
-            // Set all logo images based on the saved toggle state
+            // if toggle on then put gif
             logoImages.forEach((logo) => {
                 logo.src = result.toggleState ? gifLogo : staticLogo;
             });
         }
     });
-    updateToggleLabelColors(toggleSwitch.checked); // Ensure label colors are updated
+    updateToggleLabelColors(toggleSwitch.checked); 
 });
 
-// Event listener for the Save button
+// if save is clicked
 saveButton.addEventListener('click', async function () {
-    // Get the value from the input box
+    // get input
     const userInput = inputBox.value.trim();
 
     if (userInput) {
@@ -38,7 +40,7 @@ saveButton.addEventListener('click', async function () {
         saveButton.classList.add('saved');
     }
 
-    // Save dietary restrictions
+    // save input
     chrome.storage.local.set({ dietaryRestrictions: userInput }, function () {
         if (chrome.runtime.lastError) {
             console.error("Error saving dietaryRestrictions:", chrome.runtime.lastError.message);
@@ -47,10 +49,10 @@ saveButton.addEventListener('click', async function () {
         }
     });
 
-    // Generate ingredients to avoid using OpenAI API
+    // generate avoidance list ingredients
     const ingredientsToAvoid = await handleSaveButtonClick(userInput);
 
-    // Save ingredients to avoid
+    // save avoidance list ingredients
     chrome.storage.local.set({ ingredientsToAvoid: ingredientsToAvoid }, function () {
         console.log('Ingredients to avoid saved:', ingredientsToAvoid);
     });
@@ -70,29 +72,25 @@ function updateToggleLabelColors(isChecked) {
         return; // Exit if labels are not found
     }
 
-    // Set label colors only if there are two labels
-    toggleLabels[0].style.color = isChecked ? '#ccc' : '#36440f'; // "Off" label
-    toggleLabels[1].style.color = isChecked ? '#36440f' : '#ccc'; // "On" label
+
+    toggleLabels[0].style.color = isChecked ? '#ccc' : '#36440f'; 
+    toggleLabels[1].style.color = isChecked ? '#36440f' : '#ccc'; 
 }
 
-// Event listener for the toggle switch
+
 toggleSwitch.addEventListener('change', function () {
     const isChecked = this.checked;
 
-    // Save the toggle state to chrome.storage.local
     chrome.storage.local.set({ toggleState: isChecked }, function () {
-        console.log('Toggle state saved:', isChecked); // Log toggle state
+        console.log('Toggle state saved:', isChecked); 
     });
 
-    // Update all logo images based on the toggle state
     logoImages.forEach((logo) => {
         logo.src = isChecked ? gifLogo : staticLogo;
     });
 
-    // Update label colors
     updateToggleLabelColors(isChecked);
 
-    // Send a message to content scripts to notify about the toggle state change
     chrome.tabs.query({}, function (tabs) {
         tabs.forEach(function (tab) {
             chrome.tabs.sendMessage(tab.id, { action: 'toggleStateChanged', toggleState: isChecked });
@@ -100,8 +98,8 @@ toggleSwitch.addEventListener('change', function () {
     });
 });
 
-// Load the API key
-let apiKey; // Declare apiKey at the top so it's accessible in all functions
+
+let apiKey; 
 async function loadApiKey() {
     try {
         const response = await fetch(chrome.runtime.getURL('api.txt'));
@@ -109,16 +107,17 @@ async function loadApiKey() {
         apiKey = (await response.text()).trim();
         console.log('API Key loaded:', apiKey);
     } catch (error) {
-        console.error('❌ Error loading API key:', error.message);
+        console.error('Error loading API key:', error.message);
     }
 }
 
-// Initialize by loading the API key
+// load apikey
 loadApiKey();
 
-// Function to construct the prompt
+// construct prompt
 function constructPrompt(userInput) {
-    return `Hello ChatGPT,
+    return `
+    Hello ChatGPT,
 
 You are a highly experienced and licensed nutritionist specializing in dietary restrictions and helping patients adhere to diets by providing comprehensive lists of foods to avoid. Your mission is to help individuals maintain a healthy diet by identifying foods they should avoid based on their dietary goals and specific allergies or restrictions.
 MAKE SURE TO LOOK AT BOTH THE DIET TO FOLLOW AND THE INGREDIENTS TO AVOID. If only a diet is provided then just provide ingredients to avoid following that diet. If only the allergen/foods were sent, then just provide ingredients to avoid if you are avoiding that food. If both are provided, then provide comprehensive lists separately, don't try to find overlap, just find all possible ingredients to avoid.
@@ -157,10 +156,11 @@ Foods_to_avoid = [
 ]
 
 Take note that there is no etc. and no extra words that aren't ingredients.
-`;
+`
+    ;
 }
 
-// Function to call OpenAI API
+// call openAI
 async function getChatCompletion(prompt) {
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -170,7 +170,7 @@ async function getChatCompletion(prompt) {
                 'Authorization': `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: 'gpt-4',
+                model: 'gpt-4o',
                 messages: [{ role: 'user', content: prompt }],
             }),
         });
@@ -182,25 +182,22 @@ async function getChatCompletion(prompt) {
         const data = await response.json();
         return data.choices[0].message.content;
     } catch (error) {
-        console.error('❌ Error with OpenAI API call:', error.message);
+        console.error('Error with OpenAI API call:', error.message);
         return null;
     }
 }
 
-// Handle save button click
+
 async function handleSaveButtonClick(userInput) {
     if (!userInput) {
         alert('Please enter your dietary goals and restrictions.');
         return;
     }
+    console.log('Received user input:', userInput);
 
-    console.log('🔄 Received user input:', userInput);
-
-    // Create the prompt
     const prompt = constructPrompt(userInput);
 
-    // Send to OpenAI
-    console.log("🔄 Sending prompt to OpenAI...");
+    console.log("Sending prompt to OpenAI...");
     const ingredientsToAvoid = await getChatCompletion(prompt);
 
     if (!ingredientsToAvoid) {
