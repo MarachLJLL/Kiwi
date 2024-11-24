@@ -3,27 +3,34 @@
     "short_name": "KIWI",
     "version": "1.0.0.0",
     "description": "KIWI - Allergy Filter",
+    "icons": {
+        "16": "icons/16x16.png",  
+        "48": "icons/48x48.png",  
+        "128": "icons/128X128.png"
+      },
     "manifest_version": 3,
     "permissions": ["storage", "scripting", "activeTab"],
-    "host_permissions": ["<all_urls>", "https://api.openai.com/*", "https://www.walmart.ca/*"],
+    "host_permissions": ["<all_urls>"],
     "action": {
         "default_popup": "index.html",
         "default_title": "Kiwi"
     },
+
+    "web_accessible_resources": [
+    {
+      "resources": ["background.jpg", "images/background.jpg", "api.txt"],
+      "matches": ["<all_urls>"]
+    }
+  ],
     "content_scripts": [
         {
             "matches": ["https://www.walmart.ca/en/search?*"],
             "js": ["WalmartSearchPage.js"]
           },
           {
-            "matches": ["https://www.walmart.ca/en"],
+            "matches": ["https://www.walmart.ca/en/*"],
             "js": ["WalmartSearchPage.js"]
           }
         
-    ],
-    "icons":{
-        "16": "https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936",
-        "48": "https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936",
-        "128": "https://media.discordapp.net/attachments/1302360576281808900/1310016172518932490/Untitled_Artwork_14.png?ex=6743af22&is=67425da2&hm=a7d423b6d7ad65f6049d2fbf9e8d71529ab7875569fea0ecad634f295f896637&=&format=webp&quality=lossless&width=936&height=936"
-    }
+    ]
 }
