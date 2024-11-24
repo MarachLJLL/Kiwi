@@ -13,11 +13,11 @@
     "content_scripts": [
         {
             "matches": ["https://www.walmart.ca/en/search?*"],
-            "js": ["Walmart/WalmartSearchPage.js"]
+            "js": ["WalmartSearchPage.js"]
           },
           {
             "matches": ["https://www.walmart.ca/en"],
-            "js": ["Walmart/WalmartSearchPage.js"]
+            "js": ["WalmartSearchPage.js"]
           }
         
     ],
