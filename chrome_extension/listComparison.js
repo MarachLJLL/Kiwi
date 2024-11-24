@@ -190,7 +190,7 @@ Provide the response exactly in the following JSON format without any additional
 `;
 }
 
-async function checkGroceryOk(userInput, ingredientsToAvoid, groceryIngredients) {
+async function checkGrocery(userInput, ingredientsToAvoid, groceryIngredients) {
     const verificationPrompt = constructVerificationPrompt(userInput, ingredientsToAvoid, groceryIngredients);
 
     // Await the second API call
@@ -221,8 +221,8 @@ document.getElementById('save-button').addEventListener('click', async () => {
     if (ingredientsToAvoid) {
         console.log('🔄 Ingredients to Avoid:', ingredientsToAvoid);
 
-        // Call checkGroceryOk after the first prompt's result is ready
-        const groceryCheckResult = await checkGroceryOk(userInput, ingredientsToAvoid, groceryIngredients);
+        // call checkGrocery after the first prompt's result is ready
+        const groceryCheckResult = await checkGrocery(userInput, ingredientsToAvoid, groceryIngredients);
         console.log('Grocery Check Result:', groceryCheckResult);
     }
 });

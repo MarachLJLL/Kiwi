@@ -1,0 +1,5 @@
+class ProductPage {
+    getItems() {
+        
+    }
+}
