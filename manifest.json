@@ -1,17 +1,12 @@
 {
     "manifest_version": 3,
-    "name": "Change Background Color",
-    "version": "1.0",
+    "name": "Kiwi",
+    "version": "1.0.0",
     "description": "A simple Chrome extension to change the background color of a webpage.",
-    "permissions": ["scripting", "activeTab"],
-    "host_permissions": ["<all_urls>"],
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "icon.png",
-        "48": "icon.png",
-        "128": "icon.png"
-      }
+    "host_permissions": ["https://www.walmart.ca/*"],
+    "permissions": ["activeTab", "scripting"],
+    "background": {
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
@@ -21,6 +16,14 @@
         {
           "matches": ["https://www.walmart.ca/en"],
           "js": ["Platform Parsers/Walmart/WalmartHomePage.js"]
+        },
+        {
+            "matches": ["https://www.walmart.ca/en/ip/Quality-Gold-1-10P-24K-Yellow-Gold-Panda-Coin/6BK8MTUBMLXF?selectedSellerId=1&from=/search"],
+            "js":["Platform Parsers/Walmart/ExtractWalmartIngredients.js"]
+        },
+        {
+            "matches": ["https://www.walmart.ca/en/browse*"],
+            "js": ["Platform Parsers/Walmart/WalmartSearchPage.js"]
         }
     ]
 }

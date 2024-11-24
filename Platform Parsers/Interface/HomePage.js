@@ -1,5 +1,0 @@
-class HomePage {
-    getItems() {
-        
-    }
-}

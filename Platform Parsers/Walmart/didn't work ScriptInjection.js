@@ -1,7 +1,15 @@
+function injectScript(scriptContent) {
+    const script = document.createElement('script');
+    script.textContent = scriptContent;
+    (document.head || document.documentElement).appendChild(script);
+    script.remove(); // Clean up after execution
+}
+
+const scriptContent =`
+console.log('hi')
+
 const apiURL = 'https://quickchart.io/watermark';
 const markedIMG = 'https://i.postimg.cc/4NHhhwkJ/XKiwi.png'
-
-console.log('Product.js loaded');
 
 class Product {
     constructor(div, productPageLink, imageHTMLElement, rawImageLink, ingredients) {
@@ -66,7 +74,7 @@ class Product {
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error('HTTP error! status: \${response.status}');
                 }
 
                 const data = await response.blob();
@@ -86,10 +94,10 @@ class Product {
                     console.error("Invalid response data:", data);
                 }
             } catch (error) {
-                console.error(`Error on attempt ${attempt}:`, error);
+                console.error('Error on attempt \${attempt}:', error);
     
                 if (attempt < retries) {
-                    console.log(`Retrying... (${attempt + 1}/${retries})`);
+                    console.log('Retrying... (\${attempt + 1}/\${retries})');
                     await makeRequest(attempt + 1);
                 } else {
                     console.error("Max retries reached. Failed to process image.");
@@ -102,19 +110,18 @@ class Product {
     
 }
 
-// this works
 async function walmartExtractIngredients(url) {
     try {
       // Fetch the HTML content of the page
-      const response = await fetchHtml(url);
+      const response = await getHtmlDocument(url);
   
       if (!response) {
         return "Failed to fetch the HTML content.";
       }
   
       // Create a DOM parser to parse the HTML
-      const parser = new DOMParser();
-      const document = parser.parseFromString(response, "text/html");
+      
+      const document = response;
   
       // Find the <script> tag with id="__NEXT_DATA__"
       const scriptTag = document.querySelector("script#__NEXT_DATA__");
@@ -140,39 +147,47 @@ async function walmartExtractIngredients(url) {
   
       // Return ingredients or title if no ingredients found
       if (!ingredients || ingredients.toLowerCase().trim() === "none") {
-        return `${productTitle}`;
+        return '\${productTitle}';
       }
   
-      return `${ingredients}`;
+      return '\${ingredients}';
     } catch (error) {
-      return `Error: ${error.message}`;
+      return 'Error: \${error.message}';
     }
   }
   
   // Utility function to fetch HTML using XMLHttpRequest
-function fetchHtml(url) {
-    return new Promise((resolve, reject) => {
-      console.log('1');
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", url, true);
-      console.log('2');
-      // Removed the User-Agent header setting
-      xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(xhr.responseText);
-        } else {
-          reject(new Error(`Failed to fetch: ${xhr.status} ${xhr.statusText}`));
+async function getHtmlDocument(url) {
+    try {
+        // Fetch the URL
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                // Use a user-agent header to mimic a real browser
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
+            }
+        });
+
+        // Check if the response is OK
+        if (!response.ok) {
+            throw new Error('Failed to fetch the HTML document. Status: \${response.status}');
         }
-      };
-      console.log('3');
-      xhr.onerror = function () {
-        reject(new Error("Network error occurred while fetching the HTML."));
-      };
-      console.log('4');
-      xhr.send();
-      console.log('5');
-    });
+
+        // Retrieve the HTML content as text
+        const html = await response.text();
+
+        // Parse the HTML into a DOM using DOMParser
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        return doc; // Returns the HTML document object
+    } catch (error) {
+        console.error('Error fetching HTML document:', error);
+        return null; // Return null if there's an error
+    }
 }
+  
+
 class WalmartSearchPage {
     constructor(document) {
         this.document = document;
@@ -196,7 +211,6 @@ class WalmartSearchPage {
         try {
             let productPageLink = this.getCompleteUrl(div);
             let ingredients = await walmartExtractIngredients(productPageLink); // Await the async function
-            console.log(ingredients);
             let imageHTMLElement = this.getImageElement(div);
             let rawImageLink = this.getRawImageLink(div);
             if (productPageLink && imageHTMLElement && rawImageLink) {
@@ -244,29 +258,11 @@ class WalmartSearchPage {
     }
 }
 
-(async () => {
-    let wsp = new WalmartSearchPage(document);
-    let ps = await wsp.getProducts();
-    ps.forEach(p => {
-        //console.log(p)
-        p.addWarningHover();
-        p.processImage();
-    })
-})();
 
-/*
-(async () => {
+
 let wsp = new WalmartSearchPage(document);
 let fst = wsp.getProductElements()[0];
-let p0 = await wsp.divToProduct(fst);
-p0.addWarningHover();
-p0.processImage();
-})();
+wsp.divToProduct(fst);
+`;
 
-
-
-
-
-
-
-*/
+injectScript(scriptContent);
