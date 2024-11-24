@@ -1,36 +1,30 @@
 {
-    "name": "KIWI",
-    "short_name": "KIWI",
-    "version": "1.0.0.0",
-    "description": "KIWI - Allergy Filter",
-    "icons": {
-        "16": "icons/16x16.png",  
-        "48": "icons/48x48.png",  
-        "128": "icons/128X128.png"
-      },
-    "manifest_version": 3,
-    "permissions": ["storage", "scripting", "activeTab"],
-    "host_permissions": ["<all_urls>"],
-    "action": {
-        "default_popup": "index.html",
-        "default_title": "Kiwi"
-    },
-
-    "web_accessible_resources": [
-    {
-      "resources": ["background.jpg", "images/background.jpg", "api.txt"],
-      "matches": ["<all_urls>"]
-    }
+  "name": "KIWI",
+  "short_name": "KIWI",
+  "version": "1.0.0.0",
+  "description": "KIWI - Allergy Filter",
+  "icons": {
+      "16": "icons/16x16.png",
+      "48": "icons/48x48.png",
+      "128": "icons/128X128.png"
+  },
+  "manifest_version": 3,
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+      "default_popup": "index.html",
+      "default_title": "Kiwi"
+  },
+  "web_accessible_resources": [
+      {
+          "resources": ["background.jpg", "images/background.jpg", "api.txt"],
+          "matches": ["<all_urls>"]
+      }
   ],
-    "content_scripts": [
-        {
-            "matches": ["https://www.walmart.ca/en/search?*"],
-            "js": ["WalmartSearchPage.js"]
-          },
-          {
-            "matches": ["https://www.walmart.ca/en/*"],
-            "js": ["WalmartSearchPage.js"]
-          }
-        
-    ]
+  "content_scripts": [
+      {
+          "matches": ["https://www.walmart.ca/en/search?*", "https://www.walmart.ca/en/*"],
+          "js": ["WalmartSearchPage.js"]
+      }
+  ]
 }

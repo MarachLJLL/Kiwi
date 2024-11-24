@@ -1,8 +1,9 @@
-console.log("luis.js is running");
+// WalmartSearchPage.js
 
+console.log("WalmartSearchPage.js is running");
+
+// Load the API key
 let apiKey; // Declare apiKey at the top so it's accessible in all functions
-
-// Function to load the API key from the local `api.txt` file
 async function loadApiKey() {
     try {
         const response = await fetch(chrome.runtime.getURL('api.txt'));
@@ -11,6 +12,171 @@ async function loadApiKey() {
         console.log('API Key loaded:', apiKey);
     } catch (error) {
         console.error('❌ Error loading API key:', error.message);
+    }
+}
+
+// Initialize by loading the API key
+loadApiKey();
+
+// Function to check if the extension is toggled on
+function isExtensionToggledOn() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(['toggleState'], function (result) {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(Boolean(result.toggleState));
+            }
+        });
+    });
+}
+
+// Listen for storage changes to toggleState
+chrome.storage.onChanged.addListener(async function (changes, areaName) {
+    if (areaName === 'local' && changes.toggleState) {
+        const toggleState = changes.toggleState.newValue;
+        console.log('Toggle state changed:', toggleState);
+        if (toggleState) {
+            // If toggled on, start processing products
+            initializeProductProcessing();
+        } else {
+            // If toggled off, remove any modifications
+            removeAllModifications();
+        }
+    }
+});
+
+// Function to remove all modifications made by the extension
+function removeAllModifications() {
+    console.log('Removing all modifications...');
+    // For simplicity, reload the page to revert changes
+    window.location.reload();
+}
+
+// Main function to initialize product processing
+async function initializeProductProcessing() {
+    const isToggledOn = await isExtensionToggledOn();
+    if (!isToggledOn) {
+        console.log('Extension is toggled off. Exiting...');
+        return;
+    }
+
+    // Proceed with product processing
+    const walmartSearchPage = new WalmartSearchPage(document);
+    await walmartSearchPage.init();
+}
+
+// On script load, check if extension is toggled on, and if so, start processing
+(async function () {
+    const isToggledOn = await isExtensionToggledOn();
+    if (isToggledOn) {
+        initializeProductProcessing();
+    } else {
+        console.log('Extension is toggled off on load.');
+    }
+})();
+
+// Define the Product class
+class Product {
+    constructor(div, productPageLink, imageHTMLElement, rawImageLink, ingredients) {
+        this.div = div;
+        this.productPageLink = productPageLink;
+        this.imageHTMLElement = imageHTMLElement;
+        this.rawImageLink = rawImageLink;
+        this.ingredients = ingredients;
+        this.processedImage = null;
+        this.isProcessed = false;
+    }
+
+    async processProduct() {
+        try {
+            const isToggledOn = await isExtensionToggledOn();
+            if (!isToggledOn) {
+                console.log('Extension is toggled off. Skipping product processing.');
+                return;
+            }
+
+            const returnJson = await checkDataAvailability(mainFunction, this.ingredients);
+            console.log("Raw returnJson:", returnJson);
+
+            if (returnJson && returnJson.Unfit) {
+                await this.processImage();
+                console.log("Image is processing");
+                this.addWarningHover(returnJson.Reason);
+            }
+            this.isProcessed = true;
+        } catch (error) {
+            console.error("Error processing product:", error);
+        }
+    }
+
+    addWarningHover(reason) {
+        const targetSpan = this.div.querySelector('.mb1.mt2.b.f6.black.mr1.lh-copy');
+        const originalBrand = targetSpan ? targetSpan.textContent : '';
+
+        this.div.addEventListener('mouseenter', () => {
+            if (targetSpan) {
+                targetSpan.textContent = reason;
+                targetSpan.style.color = 'red';
+            }
+        });
+
+        this.div.addEventListener('mouseleave', () => {
+            if (targetSpan) {
+                targetSpan.textContent = originalBrand;
+                targetSpan.style.color = '';
+            }
+        });
+    }
+
+    async processImage(retries = 2) {
+        const params = {
+            mainImageUrl: this.rawImageLink,
+            markImageUrl: 'https://i.postimg.cc/4NHhhwkJ/XKiwi.png', // Your watermark image
+            position: 'center',
+            opacity: 1.0,
+            markRatio: 1.0,
+        };
+
+        const makeRequest = async (attempt) => {
+            try {
+                const response = await fetch('https://quickchart.io/watermark', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.blob();
+                if (data instanceof Blob) {
+                    const imageUrl = URL.createObjectURL(data);
+                    this.processedImage = imageUrl;
+
+                    if (this.imageHTMLElement.hasAttribute('srcset')) {
+                        this.imageHTMLElement.removeAttribute('srcset');
+                    }
+                    if (this.imageHTMLElement.hasAttribute('src')) {
+                        this.imageHTMLElement.src = this.processedImage;
+                    }
+                }
+            } catch (error) {
+                console.error(`Error on attempt ${attempt}:`, error);
+
+                if (attempt < retries) {
+                    console.log(`Retrying... (${attempt + 1}/${retries})`);
+                    await makeRequest(attempt + 1);
+                } else {
+                    console.error("Max retries reached. Failed to process image.");
+                }
+            }
+        };
+
+        await makeRequest(1);
     }
 }
 
@@ -43,6 +209,33 @@ function checkDataAvailability(callback, groceryIngredients) {
     });
 }
 
+// Main functionality that requires the data
+async function mainFunction(result, groceryIngredients) {
+    const isToggledOn = await isExtensionToggledOn();
+    if (!isToggledOn) {
+        console.log('Extension is toggled off. Skipping mainFunction.');
+        return null;
+    }
+
+    const dietaryRestrictions = result.dietaryRestrictions;
+    const ingredientsToAvoid = result.ingredientsToAvoid;
+
+    if (!apiKey) {
+        console.error('API Key is not loaded. Exiting mainFunction.');
+        return null;
+    }
+
+    const returnJson2 = await checkGroceryOk(dietaryRestrictions, ingredientsToAvoid, groceryIngredients);
+
+    if (returnJson2) {
+        console.log('Check Grocery OK Result:', returnJson2);
+    } else {
+        console.error('Failed to get a response from OpenAI.');
+    }
+
+    return returnJson2;
+}
+
 // Function to call OpenAI API
 async function getChatCompletion(prompt) {
     try {
@@ -70,26 +263,7 @@ async function getChatCompletion(prompt) {
     }
 }
 
-// Function to parse the returned text into JSON
-function parseReturnJSON(returnedText) {
-    try {
-        // Use regex to extract JSON from the response
-        const jsonMatch = returnedText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const jsonString = jsonMatch[0];
-            const parsed = JSON.parse(jsonString);
-            return parsed;
-        } else {
-            console.error('Failed to extract JSON from the response.');
-            return null;
-        }
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-        return null;
-    }
-}
-
-// Construct the prompt for verification
+// Function to construct the verification prompt
 function constructVerificationPrompt(userInput, ingredientsToAvoid, groceryIngredients) {
     return `Hello ChatGPT,
 
@@ -144,210 +318,31 @@ async function checkGroceryOk(userInput, ingredientsToAvoid, groceryIngredients)
     return parseReturnJSON(returnedText);
 }
 
-// Main functionality that requires the data
-async function mainFunction(result, groceryIngredients) {
-    const dietaryRestrictions = result.dietaryRestrictions;
-    const ingredientsToAvoid = result.ingredientsToAvoid;
-
-    // Ensure the API key is loaded
-    await loadApiKey();
-
-    if (!apiKey) {
-        console.error('API Key is not loaded. Exiting mainFunction.');
-        return;
-    }
-
-    // Proceed with your existing functions
-    const returnJson2 = await checkGroceryOk(dietaryRestrictions, ingredientsToAvoid, groceryIngredients);
-
-    if (returnJson2) {
-        console.log('Check Grocery OK Result:', returnJson2);
-        // Handle the result as needed, e.g., display warnings, modify the page, etc.
-    } else {
-        console.error('Failed to get a response from OpenAI.');
-    }
-
-    return returnJson2;
-}
-
-const apiURL = 'https://quickchart.io/watermark';
-const markedIMG = 'https://i.postimg.cc/4NHhhwkJ/XKiwi.png';
-
-console.log('Product.js loaded');
-
-// need to add gpt calls inside Product
-class Product {
-    constructor(div, productPageLink, imageHTMLElement, rawImageLink, ingredients) {
-        this.div = div;
-        this.productPageLink = productPageLink;
-        this.imageHTMLElement = imageHTMLElement;
-        this.rawImageLink = rawImageLink;
-        this.ingredients = ingredients;
-        this.processedImage = null;
-        this.isProcessed = false;
-    }
-
-    async processProduct() {
-        try {
-            const returnJson = await checkDataAvailability(mainFunction, this.ingredients);
-            console.log("Raw returnJson:", returnJson);
-
-            if (returnJson && returnJson.Unfit) {
-                await this.processImage();
-                console.log("Image is processing");
-                this.addWarningHover(returnJson.Reason);
-            }
-            this.isProcessed = true;
-        } catch (error) {
-            console.error("Error processing product:", error);
-        }
-    }
-
-    addWarningHover(reason) {
-        const targetSpan = this.div.querySelector('.mb1.mt2.b.f6.black.mr1.lh-copy');
-        const originalBrand = targetSpan ? targetSpan.textContent : '';
-
-        this.div.addEventListener('mouseenter', () => {
-            if (targetSpan) {
-                targetSpan.textContent = reason;
-                targetSpan.style.color = 'red';
-            }
-        });
-
-        this.div.addEventListener('mouseleave', () => {
-            if (targetSpan) {
-                targetSpan.textContent = originalBrand;
-                targetSpan.style.color = '';
-            }
-        });
-    }
-
-    async processImage(retries = 2) {
-        const params = {
-            mainImageUrl: this.rawImageLink,
-            markImageUrl: markedIMG,
-            position: 'center',
-            opacity: 1.0,
-            markRatio: 1.0,
-        };
-
-        const makeRequest = async (attempt) => {
-            try {
-                const response = await fetch(apiURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(params),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.blob();
-                if (data instanceof Blob) {
-                    const imageUrl = URL.createObjectURL(data);
-                    this.processedImage = imageUrl;
-
-                    if (this.imageHTMLElement.hasAttribute('srcset')) {
-                        this.imageHTMLElement.removeAttribute('srcset');
-                    }
-                    if (this.imageHTMLElement.hasAttribute('src')) {
-                        this.imageHTMLElement.src = this.processedImage;
-                    }
-                }
-            } catch (error) {
-                console.error(`Error on attempt ${attempt}:`, error);
-
-                if (attempt < retries) {
-                    console.log(`Retrying... (${attempt + 1}/${retries})`);
-                    await makeRequest(attempt + 1);
-                } else {
-                    console.error("Max retries reached. Failed to process image.");
-                }
-            }
-        };
-
-        await makeRequest(1);
-    }
-}
-
-// Fetch HTML content with rate-limiting and error handling
-async function fetchHtmlWithRateLimit(url, delayMs = 1000, retries = 3) {
-    for (let attempt = 1; attempt <= retries; attempt++) {
-        try {
-            await delay(delayMs); // Delay before making the request
-            return await fetchHtml(url); // Fetch the HTML
-        } catch (error) {
-            console.error(`Attempt ${attempt} failed:`, error);
-            if (attempt === retries) {
-                throw new Error(`Failed to fetch after ${retries} attempts`);
-            }
-            delayMs *= 2; // Exponential backoff
-        }
-    }
-}
-
-// Delay function implementation
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function fetchHtml(url) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        //xhr.setRequestHeader("User-Agent", "Mozilla/5.0");
-        xhr.setRequestHeader("Accept", "text/html,application/json");
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                resolve(xhr.responseText);
-            } else {
-                reject(new Error(`Failed to fetch: ${xhr.status} ${xhr.statusText}`));
-            }
-        };
-        xhr.onerror = function () {
-            reject(new Error("Network error occurred while fetching the HTML."));
-        };
-        xhr.send();
-    });
-}
-
-async function walmartExtractIngredients(url, delayMs = 1000) {
+// Function to parse the returned text into JSON
+function parseReturnJSON(returnedText) {
     try {
-        const response = await fetchHtml(url);
-        if (!response) {
-            return 'Failed to fetch the HTML content.';
+        // Use regex to extract JSON from the response
+        const jsonMatch = returnedText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const jsonString = jsonMatch[0];
+            const parsed = JSON.parse(jsonString);
+            return parsed;
+        } else {
+            console.error('Failed to extract JSON from the response.');
+            return null;
         }
-
-        const parser = new DOMParser();
-        const document = parser.parseFromString(response, 'text/html');
-        const scriptTag = document.querySelector("script#__NEXT_DATA__");
-        if (!scriptTag) {
-            console.error("Script tag with id='__NEXT_DATA__' not found. Response:", response);
-            return 'Script tag not found';
-        }
-
-        const scriptContent = scriptTag.textContent;
-        const data = JSON.parse(scriptContent);
-        const ingredients = data?.props?.pageProps?.initialData?.data?.idml?.ingredients?.ingredients?.value;
-
-        const titleElement = document.querySelector('#main-title');
-        const productTitle = titleElement ? titleElement.textContent.trim() : 'No title found';
-
-        return ingredients?.toLowerCase().trim() === 'none' ? productTitle : ingredients;
     } catch (error) {
-        return `Error: ${error.message}`;
+        console.error('Error parsing JSON:', error);
+        return null;
     }
 }
 
+// Class for handling the Walmart Search Page
 class WalmartSearchPage {
     constructor(document) {
         this.document = document;
         this.productContainerSelector = "#\\30 > section > div > div";
         this.processedProducts = new Set();
-        this.processing = false; // Flag to prevent multiple simultaneous processings
     }
 
     async init() {
@@ -416,13 +411,70 @@ class WalmartSearchPage {
     }
 }
 
-// Initialize WalmartSearchPage at a regular interval
-(async () => {
-    const walmartSearchPage = new WalmartSearchPage(document);
+// Fetch HTML content with rate-limiting and error handling
+async function fetchHtmlWithRateLimit(url, delayMs = 1000, retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            await delay(delayMs); // Delay before making the request
+            return await fetchHtml(url); // Fetch the HTML
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed:`, error);
+            if (attempt === retries) {
+                throw new Error(`Failed to fetch after ${retries} attempts`);
+            }
+            delayMs *= 2; // Exponential backoff
+        }
+    }
+}
 
-    // Call the init function every 5 seconds
-    setInterval(async () => {
-        console.log("Running periodic initialization...");
-        await walmartSearchPage.init();
-    }, 5000); // 5000ms = 5 seconds
-})();
+// Delay function implementation
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function fetchHtml(url) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Accept", "text/html,application/json");
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(xhr.responseText);
+            } else {
+                reject(new Error(`Failed to fetch: ${xhr.status} ${xhr.statusText}`));
+            }
+        };
+        xhr.onerror = function () {
+            reject(new Error("Network error occurred while fetching the HTML."));
+        };
+        xhr.send();
+    });
+}
+
+async function walmartExtractIngredients(url, delayMs = 1000) {
+    try {
+        const response = await fetchHtml(url);
+        if (!response) {
+            return 'Failed to fetch the HTML content.';
+        }
+
+        const parser = new DOMParser();
+        const document = parser.parseFromString(response, 'text/html');
+        const scriptTag = document.querySelector("script#__NEXT_DATA__");
+        if (!scriptTag) {
+            console.error("Script tag with id='__NEXT_DATA__' not found. Response:", response);
+            return 'Script tag not found';
+        }
+
+        const scriptContent = scriptTag.textContent;
+        const data = JSON.parse(scriptContent);
+        const ingredients = data?.props?.pageProps?.initialData?.data?.idml?.ingredients?.ingredients?.value;
+
+        const titleElement = document.querySelector('#main-title');
+        const productTitle = titleElement ? titleElement.textContent.trim() : 'No title found';
+
+        return ingredients?.toLowerCase().trim() === 'none' ? productTitle : ingredients;
+    } catch (error) {
+        return `Error: ${error.message}`;
+    }
+}
