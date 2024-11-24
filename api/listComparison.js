@@ -1,11 +1,13 @@
+// listComparison.js
+
 import { getChatCompletion } from './api-call.js'; // Ensure the relative path is correct
 import readline from 'readline';
+import fs from 'fs';
 
 /**
- * Prompts the user to input any statement or list of items they cannot consume.
+ * Prompts the user to input a statement containing both their dietary goal and items to avoid.
  * @returns {Promise<string>} - The raw user input as a single string.
  */
-
 function getUserInput() {
     return new Promise((resolve) => {
         const rl = readline.createInterface({
@@ -13,14 +15,14 @@ function getUserInput() {
             output: process.stdout,
         });
 
-        rl.question('Enter your dietary preference or items you cannot consume: ', (answer) => { /** HERE WE HAVE A QUESTION */
+        rl.question('📝 Enter your dietary goal and items you cannot consume: ', (answer) => {
             rl.close();
             const userInput = answer.trim();
             if (userInput.length === 0) {
-                console.log('No input provided. Exiting the program.');
+                console.log('❌ No input provided. Exiting the program.');
                 process.exit(0);
             }
-            console.log('Received user input:', userInput);
+            console.log('🔄 Received user input:', userInput);
             resolve(userInput);
         });
     });
@@ -28,15 +30,21 @@ function getUserInput() {
 
 /**
  * Constructs a detailed prompt incorporating the user's input.
- * @param {string} userInput - The raw user input.
+ * @param {string} userInput - The raw user input containing both dietary goal and items to avoid.
  * @returns {string} - The constructed prompt for OpenAI.
  */
 function constructPrompt(userInput) {
     return `Hello ChatGPT,
 
-You are a licensed nutritionist and the best in your field. Your goal is to help individuals maintain a healthy diet by identifying foods they should avoid based on their dietary preferences, restrictions, or health goals.
+You are a highly experienced and licensed nutritionist specializing in dietary restrictions and helping patients adhere to diets by providing comprehensive lists of foods to avoid. Your mission is to help individuals maintain a healthy diet by identifying foods they should avoid based on their dietary goals and specific allergies or restrictions.
 
-Based on the following user input, identify all relevant foods or ingredients that should be avoided to achieve the user's dietary goal. Provide the list in the following format:
+**User Statement:**
+"${userInput}"
+
+**Task:**
+Based on the above statement, identify all relevant foods or ingredients that should be avoided to achieve the user's dietary goal while considering their specific allergies or restrictions. Provide the list in the following format:
+
+**Response Format Only:**
 
 Foods_to_avoid = [
     "Item1",
@@ -46,14 +54,14 @@ Foods_to_avoid = [
 ]
 
 **Instructions:**
-- Ensure the list is exhaustive, accurate, and considers variations or similar names (e.g., kiwi and Chinese gooseberry).
-- Avoid general or vague answers. Each item should be specific and actionable.
-- Prioritize safety and thoroughness, as this is crucial for the user's health.
-
-**User Input:**
-${userInput}
-
-Please provide only the list in the specified format without additional explanations.`;
+- **Exhaustive List:** Ensure the list is comprehensive and includes all relevant items. This is a matter of life and death.
+- **Specificity:** Mention ingredients that are found on product labels.
+- **Variations and Similar Names:** Account for variations or similar names (e.g., "keto and low-carb").
+- **Hidden Sources:** Consider hidden sources of carbohydrates or other restricted nutrients.
+- **Formatting:** Strictly adhere to the specified format for ease of parsing.
+- **Safety and Thoroughness:** Prioritize the user's health by being meticulous and thorough.
+- **No Explanations:** Do not provide additional explanations or context beyond the list.
+`;
 }
 
 /**
@@ -72,7 +80,8 @@ function parseAIResponse(text) {
             .map(item => item.trim().replace(/^["']|["']$/g, ''))
             .filter(item => item.length > 0);
     } else {
-        console.error("Failed to parse AI response. Please ensure the response is in the correct format.");
+        console.error("❌ Failed to parse AI response. Please ensure the response is in the correct format.");
+        console.log('📄 Raw AI Response:', text); // Log the raw response for debugging
         return [];
     }
 }
@@ -80,39 +89,54 @@ function parseAIResponse(text) {
 // Main asynchronous function to orchestrate the steps
 (async () => {
     try {
-       //Prompt user for input 
+        // Step 1: Prompt the user to enter their input
         const userInput = await getUserInput();
 
-        //make prompt using user input
+        // Step 2: Construct the prompt incorporating the user's input
         const prompt = constructPrompt(userInput);
 
-        //here we send the prompt to openAI
-        console.log("Sending prompt to OpenAI...");
+        // Optional: Log the constructed prompt for debugging
+        // console.log('\n📄 Constructed Prompt:\n', prompt);
+
+        // Step 3: Send the prompt to OpenAI
+        console.log("🔄 Sending prompt to OpenAI...");
         const openAIResponse = await getChatCompletion(prompt);
 
         if (!openAIResponse) {
-            console.error("Failed to retrieve list from OpenAI.");
+            console.error("❌ Failed to retrieve list from OpenAI.");
             process.exit(1);
         }
 
-        console.log('Received response from OpenAI.');
+        console.log('🔄 Received response from OpenAI.');
 
-        // parse el api response
+        // Log the raw AI response for debugging
+        console.log('📄 Raw AI Response:', openAIResponse);
+
+        // Step 4: Parse the AI's response to extract the list of foods to avoid
         const foodsToAvoid = parseAIResponse(openAIResponse);
 
         if (foodsToAvoid.length === 0) {
-            console.log('No foods to avoid were identified.');
+            console.log('❌ No foods to avoid were identified.');
             process.exit(1);
         }
 
-        // Step 5: Output the results
-        console.log('\nTo reach your goal, here are some foods you should avoid');
+        // Step 5: Save the generated list to a JSON file for use in final-comp.js
+        const output = {
+            userInput: userInput,
+            foodsToAvoid: foodsToAvoid
+        };
+
+        fs.writeFileSync('generatedList.json', JSON.stringify(output, null, 2));
+        console.log('✅ Generated list has been saved to generatedList.json');
+
+        // Step 6: Output the results
+        console.log('\n🍽️ Your Dietary Recommendations:');
         console.log('----------------------------------');
 
-        console.log('\nYou cannot eat:');
+        console.log('\n❌ You should avoid:');
         foodsToAvoid.forEach(item => console.log(`- ${item}`));
 
     } catch (error) {
-        console.error('An unexpected error occurred:', error.message);
+        console.error('❌ An unexpected error occurred:', error.message);
     }
 })();

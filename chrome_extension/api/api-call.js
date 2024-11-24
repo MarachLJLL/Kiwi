@@ -3,8 +3,7 @@ import fs from 'fs';
 
 
 //define path to API file key
-const apiKeyPath = 'api.txt';
-
+const apiKeyPath = 'chrome_extension/api/api.txt'
 //make sure key loaded - no errors
 let apiKey;
 try {

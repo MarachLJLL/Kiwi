@@ -69,6 +69,7 @@ export class Product {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
+
                 const data = await response.blob();
     
                 if (data instanceof Blob) {
