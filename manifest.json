@@ -3,15 +3,25 @@
     "name": "Kiwi",
     "version": "1.0.0",
     "description": "A simple Chrome extension to change the background color of a webpage.",
-    "permissions": ["scripting", "activeTab"],
+    "host_permissions": ["https://www.walmart.ca/*"],
+    "permissions": ["activeTab", "scripting"],
+    "background": {
+        "service_worker": "background.js"
+    },
     "content_scripts": [
         {
           "matches": ["https://www.walmart.ca/en/search?*"],
-          "js": ["Platform Parsers/Walmart/WalmartSearchPage.js"]
+          "js": ["Platform Parsers/Walmart/WalmartSearchPage.js"],
+          "type": "module"
         },
         {
           "matches": ["https://www.walmart.ca/en"],
           "js": ["Platform Parsers/Walmart/WalmartHomePage.js"]
+        },
+        {
+            "matches": ["https://www.walmart.ca/"],
+            "js":["Product.js"],
+            "type": "module"
         }
     ]
 }

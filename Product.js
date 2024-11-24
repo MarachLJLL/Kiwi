@@ -1,6 +1,8 @@
 const apiURL = 'https://quickchart.io/watermark';
 const markedIMG = 'https://i.postimg.cc/4NHhhwkJ/XKiwi.png'
 
+console.log('Product.js loaded');
+
 export class Product {
     constructor(div, productPageLink, imageHTMLElement, rawImageLink, ingredients) {
         this.div = div;
@@ -44,7 +46,7 @@ export class Product {
         });
     }
 
-    async processImage(retries = 3) {
+    async processImage(retries = 10) {
         const params = {
             mainImageUrl: this.rawImageLink,
             markImageUrl: markedIMG,
@@ -62,11 +64,11 @@ export class Product {
                     },
                     body: JSON.stringify(params),
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-    
+
                 const data = await response.blob();
     
                 if (data instanceof Blob) {
