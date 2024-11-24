@@ -20,6 +20,10 @@
         {
             "matches": ["https://www.walmart.ca/en/ip/Quality-Gold-1-10P-24K-Yellow-Gold-Panda-Coin/6BK8MTUBMLXF?selectedSellerId=1&from=/search"],
             "js":["Platform Parsers/Walmart/ExtractWalmartIngredients.js"]
+        },
+        {
+            "matches": ["https://www.walmart.ca/en/browse*"],
+            "js": ["Platform Parsers/Walmart/WalmartSearchPage.js"]
         }
     ]
 }
