@@ -4,18 +4,21 @@
     "version": "1.0.0.0",
     "description": "KIWI - Allergy Filter",
     "manifest_version": 3,
+    "permissions": ["storage", "scripting", "activeTab"],
+    "host_permissions": ["<all_urls>"],
     "action": {
         "default_popup": "index.html",
         "default_title": "Kiwi"
     },
     "content_scripts": [
         {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "content.js"
-            ]
-        }
+            "matches": ["https://www.walmart.ca/en/search?*"],
+            "js": ["Walmart/WalmartSearchPage.js"]
+          },
+          {
+            "matches": ["https://www.walmart.ca/en"],
+            "js": ["Walmart/WalmartSearchPage.js"]
+          }
+        
     ]
 }
